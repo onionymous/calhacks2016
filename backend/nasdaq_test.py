@@ -16,7 +16,7 @@ values = {'_Token' : 'BC2B181CF93B441D8C6342120EB0C971',
           'StartDateTime' : str(start_date).replace('-', '/'),
           'EndDateTime' : str(end_date).replace('-', '/'),
           'MarketCenters' : '' ,
-          'TradePrecision': 'Minute',
+          'TradePrecision': 'Hour',
           'TradePeriod':'1'}
 
 # Submit request
@@ -43,6 +43,8 @@ last = []
 high = []
 low = []
 volumes = []
+vwap = []
+twap = []
 trades = []
 
 for child in root[0][4]:
@@ -52,10 +54,12 @@ for child in root[0][4]:
     high.append(float(child[3].text))
     low.append(float(child[4].text))
     volumes.append(int(child[5].text))
+    vwap.append(float(child[6].text))
+    twap.append(float(child[7].text))
     trades.append(int(child[8].text))
 
 fout = open("data.csv", "w")
-fout.write('time,average_price\n')
+fout.write('datetime,vwap\n')
 for i in range(len(times)):
-    fout.write(times[i] + ',' + str((high[i] + low[i])/2) + '\n')
+    fout.write(times[i] + ',' + str(vwap[i]) + '\n')
 fout.close()

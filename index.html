@@ -54,7 +54,7 @@
 
       scene = new THREE.Scene();
 
-      camera = new THREE.PerspectiveCamera(90, 1, 0.001, 30);
+      camera = new THREE.PerspectiveCamera(90, 1, 0.001, 70);
       camera.position.set(0, 15, 10);
       scene.add(camera);
 
@@ -137,14 +137,14 @@
 
       d3.csv('backend/data.csv', prices, function(data) {
         xscale.domain([0, data.length - 1]);
-        yscale.domain([0, d3.max(data, function(d){ return d.average_price; })]);
+        yscale.domain([0, d3.max(data, function(d){ return d.vwap; })]).range([2, 15]);
         var columnwidth = (chartwidth / data.length);
         columnwidth -= columnwidth * 0.1;
         var columnmaterial = new THREE.MeshPhongMaterial({
           color: "#CCCCCC"
         });
         data.forEach(function(d, i, a){
-          var colheight = yscale(d.average_price);
+          var colheight = yscale(d.vwap);
           var columngeo = new THREE.BoxGeometry(columnwidth, colheight, columnwidth);
           var columnmesh = new THREE.Mesh(columngeo, columnmaterial);
           columnmesh.position.set(xscale(i), colheight/2 + marginbottom, 0);
@@ -159,7 +159,7 @@
 
     function prices(d) {
       d.datetime = parseDate(d.datetime);
-      d.average_price = +d.average_price;
+      d.vwap = +d.vwap;
       return d;
     }
 
