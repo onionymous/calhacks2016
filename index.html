@@ -23,8 +23,8 @@
 
   <script src="js/third-party/threejs/three.js"></script>
   <script src="js/third-party/d3/d3.min.js"></script>
- <!-- <script src="js/third-party/threejs/StereoEffect.js"></script>
-  <script src="js/third-party/threejs/DeviceOrientationControls.js"></script>-->
+  <script src="js/third-party/threejs/StereoEffect.js"></script>
+  <script src="js/third-party/threejs/DeviceOrientationControls.js"></script>
   <script src="js/third-party/threejs/OrbitControls.js"></script>
   <script src="js/optimer_bold.typeface.js"></script>
   <script src="js/optimer_regular.typeface.js"></script>
@@ -35,7 +35,7 @@
     var element, container;
     
     // Scales
-    var marginbottom = 0, chartwidth = 90, chartheight = 10; //3D units
+    var marginbottom = 4, chartwidth = 90, chartheight = 10; //3D units
     var xscale = d3.scaleLinear().range([-chartwidth/2, chartwidth/2]);
     var yscale = d3.scaleLinear().range([0, chartheight]);
 
@@ -50,7 +50,7 @@
       container = document.getElementById('container');
       container.appendChild(element);
 
-      // effect = new THREE.StereoEffect(renderer);
+      effect = new THREE.StereoEffect(renderer);
 
       scene = new THREE.Scene();
 
@@ -67,6 +67,26 @@
       );
       controls.noZoom = true;
       controls.noPan = true;
+
+      var title = createType({text: "GOOG VWAP vs. Time (Hourly Interval)"});
+      title.position.set(-chartwidth/2, chartheight + 15, -5);
+      scene.add(title);
+
+      var xzerolabel = createType({text: "1/11/2016", size: 1.5});
+      xzerolabel.position.set(-chartwidth/2 - 1, 2, 0);
+      scene.add(xzerolabel);
+
+      var x100label = createType({text: "13/11/2016", size: 1.5});
+      var xOffset = ( x100label.geometry.boundingBox.max.x -
+              x100label.geometry.boundingBox.min.x );
+      x100label.position.set(chartwidth/2 - xOffset, 2, 0);
+      scene.add(x100label);
+
+
+      var srctext = createType({text: "Source: NASDAQ", size: 1});
+      var xOffset = 0.5 * ( x100label.geometry.boundingBox.max.x - x100label.geometry.boundingBox.min.x );
+      srctext.position.set(0 - xOffset, 1, 0);
+      scene.add(srctext);
 
       function setOrientationControls(e) {
         if (!e.alpha) {
@@ -152,6 +172,23 @@
           //so we need to move it up by half the height
           scene.add(columnmesh);
         });
+
+        yscale.ticks(5).forEach(function(t, i, a){
+        //Draw label
+        var label = createType({text: "" + (t), size: 1.5});
+        var xOffset = ( label.geometry.boundingBox.max.x - label.geometry.boundingBox.min.x );
+        label.position.set(-chartwidth/2 - xOffset - 2.5, yscale(t) + marginbottom - 0.5, 0);
+        scene.add(label);
+
+        //Draw line
+        var lineGeometry = new THREE.Geometry();
+        var vertArray = lineGeometry.vertices;
+        vertArray.push( new THREE.Vector3(-chartwidth/2 - 1.5, yscale(t) + marginbottom, 0), new THREE.Vector3(chartwidth/2, yscale(t) + marginbottom, 0) );
+        lineGeometry.computeLineDistances();
+        var lineMaterial = new THREE.LineBasicMaterial( { color: 0xaaaaaa } );
+        var line = new THREE.Line( lineGeometry, lineMaterial );
+        scene.add(line);
+        });
       });
      }
     
@@ -170,8 +207,8 @@
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
 
-      renderer.setSize(width, height);
-      // effect.setSize(width, height);
+      //renderer.setSize(width, height);
+      effect.setSize(width, height);
     }
 
     function update(dt) {
@@ -183,7 +220,10 @@
     }
 
     function render(dt) {
-      renderer.render(scene, camera);
+      //renderer.render(scene, camera);
+      var width = container.offsetWidth;
+      var height = container.offsetHeight;
+      effect.setSize(width, height);
     }
 
     function animate(t) {
