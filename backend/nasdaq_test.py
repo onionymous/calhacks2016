@@ -54,7 +54,8 @@ for child in root[0][4]:
     volumes.append(int(child[5].text))
     trades.append(int(child[8].text))
 
-fout = open("data.txt", "w")
+fout = open("data.csv", "w")
+fout.write('time,average_price\n')
 for i in range(len(times)):
     fout.write(times[i] + ',' + str((high[i] + low[i])/2) + '\n')
 fout.close()
